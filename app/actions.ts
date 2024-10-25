@@ -5,9 +5,10 @@ import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { ethers } from "ethers";
-import { uuidToUint256, uint256ToUuid } from "@/utils/conversions";
+import { uuidToUint256 } from "@/utils/conversions";
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import dayjs from "dayjs";
+import { Log } from '@ethersproject/abstract-provider';
 
 
 const contractABI = [
@@ -294,58 +295,69 @@ export const createPredictionAction = async (description: string) => {
     if (userData.credits <= 0) {
       return ["Error", "Not enough credits to make a prediction"];
     }
-    const nextId = await contract.getNextId();
 
-    const { data, error } = await supabase.rpc('create_prediction_and_update_credits', {
-      p_authuserid: authuserid,
-      p_description: description,
-      p_visible: true,
-      p_id: Number(nextId)
-    });
-  
-    if (error) {
-      return ["Error", "Couldn't create prediction or update credits"];
-    }
-    const { new_credit_balance, new_prediction_id } = data[0];
-  
     try {
       const bytes32Array = Array(6).fill(ethers.ZeroHash);
 
-for (let i = 0; i < 6 && i * 32 < description.length; i++) {
-    let chunk = (description.slice(i * 31, (i + 1) * 31 )) + " ";
-    let byteArray = new TextEncoder().encode(chunk);
+      for (let i = 0; i < 6 && i * 32 < description.length; i++) {
+        let chunk = (description.slice(i * 31, (i + 1) * 31 )) + " ";
+        let byteArray = new TextEncoder().encode(chunk);
 
-    if (byteArray.length > 31) {
-        let truncatedChunk = '';
-        let byteCount = 0;
+        if (byteArray.length > 31) {
+          let truncatedChunk = '';
+          let byteCount = 0;
 
-        for (let char of chunk) {
+          for (let char of chunk) {
             const charBytes = new TextEncoder().encode(char).length;
             if (byteCount + charBytes > 31) break;
             truncatedChunk += char;
             byteCount += charBytes;
+          }
+
+          chunk = truncatedChunk;
         }
 
-        chunk = truncatedChunk;
-    }
+        bytes32Array[i] = ethers.encodeBytes32String(chunk);
+      }
 
-    bytes32Array[i] = ethers.encodeBytes32String(chunk);
-}
-
-
-    const formattedUserId = uuidToUint256(authuserid)
+      const formattedUserId = uuidToUint256(authuserid);
     
       const tx = await contract.emitPrediction(formattedUserId, bytes32Array);
       
-      await tx.wait();
+      const receipt = await tx.wait();
+      
+      const event = receipt.logs.find(
+        (log: Log) => log.topics[0] === contract.interface.getEvent('PredictionMade')?.topicHash
+      );
+
+      if (!event) {
+        return ["Error", "PredictionMade event not found in transaction logs"];
+      }
+
+      const parsedLog = contract.interface.parseLog(event);
+      
+      if (parsedLog == null) {
+        return ["Error", "Unknown error occurred"]
+      }
+
+      const id = Number(parsedLog.args[0]);
+
+      const { data, error } = await supabase.rpc('create_prediction_and_update_credits', {
+        p_authuserid: authuserid,
+        p_description: description,
+        p_visible: true,
+        p_id: id
+      });
+  
+      if (error) {
+        return ["Error", "Couldn't create prediction or update credits"]
+      }
+
+      const { new_credit_balance } = data[0];
       
       return ["Success", `Prediction added successfully! You have ${new_credit_balance} credits left`];
     } catch (error) {
-      await supabase
-      .from('prediction')
-      .delete()
-      .eq('id', new_prediction_id);
-      return ["Error", "Prediction could not be added to the contract"];
+      return ["Error", "Prediction could not be added"];
     }
   }
   return ["Error", "Unknown authentication error"];

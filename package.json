@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ethersproject/abstract-provider": "^5.7.0",
     "@hookform/resolvers": "^3.9.0",
     "@mantine/core": "^7.13.3",
     "@mantine/dates": "^7.13.3",

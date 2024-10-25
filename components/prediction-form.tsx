@@ -75,7 +75,7 @@ export function PredictionForm() {
                 ),
             });
         } finally {
-            setLoading(false); // Reset loading to false when done
+            setLoading(false);
         }
     }
   
@@ -96,7 +96,7 @@ export function PredictionForm() {
                 />
               </FormControl>
               <FormDescription>
-                This prediction will live on forever :o
+                This prediction will live on forever, so choose your words wisely.
               </FormDescription>
               <FormMessage />
             </FormItem>

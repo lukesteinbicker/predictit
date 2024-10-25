@@ -30,10 +30,17 @@ export default function PredictionsList() {
     loadPredictions();
   }, [userId.id]);
 
+  const truncateString = (str: string, num: number) => {
+    if (str.length <= num) {
+      return str;
+    }
+    return str.slice(0, num) + '...';
+  };
+
   const rows = predictions.map((prediction) => (
     <Table.Tr key={prediction.id}>
       <Table.Td>{prediction.id}</Table.Td>
-      <Table.Td>{prediction.description}</Table.Td>
+      <Table.Td>{truncateString(prediction.description, 50)}</Table.Td>
       <Table.Td>{new Date(prediction.created_at).toLocaleString()}</Table.Td>
       <Table.Td>
         <Link href={`/p/${prediction.id}`} target="_blank" rel="noopener noreferrer">

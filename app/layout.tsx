@@ -18,8 +18,8 @@ const defaultUrl = process.env.URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Predict",
-  description: "Prove your prediction skills",
+  title: "predi.ct.it",
+  description: "Share your verified predictions with others",
 };
 
 export default function RootLayout({
@@ -42,7 +42,7 @@ export default function RootLayout({
               <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
                 <div className="w-full max-w-5xl flex justify-between items-center px-8 text-sm">
                   <div className="flex items-center font-semibold">
-                    <Link href={"/"}><h1 className="text-3xl mr-4">Predict</h1></Link>
+                    <Link href={"/"}><h1 className="text-3xl mr-4">PredictIt!</h1></Link>
                     <div className="hidden sm:block gap-4">
                     <Link href="https://github.com/lukesteinbicker/predictit/"><Button variant="link">Repo</Button></Link>
                     <CopyButton text="Keep the lights on" copyText="0xd5c81b6bba0ceb477594fcedc83703ed5911843d"/>

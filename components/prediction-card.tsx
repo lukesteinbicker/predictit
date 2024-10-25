@@ -68,12 +68,12 @@ export default function PredictionCard() {
     <CardHeader>
       <div className="flex justify-between">
         <CardTitle>Prediction</CardTitle>
-        <ShareButton link={`/${predictionId}`} />
+        <ShareButton link={`/p/${predictionId.id}`} />
       </div>
     </CardHeader>
     <CardContent>
       <CardDescription>This does not exist... maybe?</CardDescription>
-      <p>If a user created a prediction anonymously through the smart contract outside of this application, it exists on the chain but not in our database storage. Feel free to verify (disregard the user ID field in the response).</p>
+      <p>If a user created a prediction anonymously through the smart contract outside of this application, it exists on the chain but not in our database storage. Feel free to try verifying (disregard the user ID field in the response).</p>
     </CardContent>
     <CardFooter className="flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:space-x-2">
       <Button onClick={() => verifyOnChain(predictionId.id)} disabled={isVerifying}>
@@ -88,7 +88,7 @@ export default function PredictionCard() {
       <CardHeader>
         <div className="flex justify-between">
           <CardTitle>Prediction</CardTitle>
-          <ShareButton link={`/${predictionId}`} />
+          <ShareButton link={`/p/${predictionId.id}`} />
         </div>
       </CardHeader>
       <CardContent>
